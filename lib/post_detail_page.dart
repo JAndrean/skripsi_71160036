@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_wordpress/flutter_wordpress.dart' as wp;
-import 'berita_tag_1.dart';
+import 'berita_tag.dart';
 import 'main.dart';
 
-final _root = 'http://localhost/anekozawa'; //replace with your site url
+final _root = 'http://localhost/sinode'; //replace with your site url
 final wp.WordPress wordPress = wp.WordPress(baseUrl: _root);
 void main() {
   runApp(MaterialApp(
@@ -11,7 +11,7 @@ void main() {
     routes: {
       '/': (context) => HomePage(),
       //'berita0': (context) => Berita0Page(),
-      'berita1': (context) => Berita1Page(),
+      'berita1': (context) => BeritaTagPage(),
       'postDetail': (context) => PostDetailPage(),
     },
     ));
@@ -61,10 +61,14 @@ class _PostDetailPageState extends State<PostDetailPage> {
                   ),
                   ListTile(
                     subtitle: Text('Tag 1'),
-                    onTap: (){
+                     onTap: (){
+                      includedTag.clear();
+                      excludedTag.clear();
+                      includedTag.add(2);
+                      excludedTag.addAll([1,3]);
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => Berita1Page()),
+                        MaterialPageRoute(builder: (context) => BeritaTagPage()),
                       );
                     },
                   ),
@@ -132,14 +136,16 @@ class _PostDetailPageState extends State<PostDetailPage> {
 
   Widget buildImage(int index) {
     if (posts[index].featuredMedia == null) {
-      return Image.network(
-        "Post has no Image",
+      return Container(
+        padding: EdgeInsets.symmetric(vertical: 5.0),
+        child: Text("Post has no Image"),
       );
     }
     return Image.network(
       posts[index].featuredMedia.mediaDetails.sizes.thumbnail.sourceUrl, 
     );
   }
+
 
   String filterHtml(String inputText) {
     return inputText.substring(3, inputText.length-5);

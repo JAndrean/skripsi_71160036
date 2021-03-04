@@ -1,39 +1,28 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_wordpress/flutter_wordpress.dart' as wp;
+import 'main.dart';
 
-import 'berita_tag.dart';
-import 'post_detail_page.dart';
-
-final _root = 'http://localhost/sinode';
+final _root = 'http://localhost/sinode'; //replace with your site url
 final wp.WordPress wordPress = wp.WordPress(baseUrl: _root);
-String passTitle, passDate, passExcerpt;
-Widget passImage;
-bool isLoading = false;
 
-List<int> includedTag;
-List<int> excludedTag;
 void main() {
   runApp(MaterialApp(
     initialRoute: '/',
     routes: {
-        '/': (context) => HomePage(),
-        'beritaTagged': (context) => BeritaTagPage(),
-        'postDetail': (context) => PostDetailPage(),
-      },
-    )
-  );
+      '/beranda': (context) => HomePage(),
+      'beritaTagged': (context) => BeritaTagPage(),
+    },
+    ));
 } //App Entry Point
 
-class HomePage extends StatefulWidget {
+//Page Class
+class BeritaTagPage extends StatefulWidget {
   @override
-  _HomePageState createState() => _HomePageState();
+  _BeritaTagPageState createState() => _BeritaTagPageState();
 }
 
 //Beranda
-class _HomePageState extends State<HomePage> {
-
+class _BeritaTagPageState extends State<BeritaTagPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,7 +39,13 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               ListTile(
-                title: Text('Beranda', style: TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.bold)),
+                title: Text('Beranda'), 
+                    onTap: (){
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => HomePage()),
+                      );
+                    },
               ),
               Divider(thickness: 2.0,),
               ExpansionTile(
@@ -63,13 +58,7 @@ class _HomePageState extends State<HomePage> {
                     }*/
                   ),
                   ListTile(
-                    subtitle: Text('Tag 1'),
-                    onTap: (){
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => BeritaTagPage()),
-                      );
-                    },
+                    subtitle: Text('Tag 1', style: TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.bold)),
                   ),
                   ListTile(
                     subtitle: Text('Tag 2')
@@ -87,13 +76,9 @@ class _HomePageState extends State<HomePage> {
         title: Text('Sinode GKJ'),
         backgroundColor: Colors.blueAccent,
       ),
-      body: isLoading
-          ? Center(
-            child: CircularProgressIndicator(),
-          ):
-          ListView.builder(
-            itemCount: posts == null ? 0 : posts.length,
-            itemBuilder: (BuildContext context, int index) {
+      body: ListView.builder(
+        itemCount: posts == null ? 0 : posts.length,
+        itemBuilder: (BuildContext context, int index) {
           return buildPost(index); //Building the posts list view
         },
       ),
@@ -107,62 +92,40 @@ class _HomePageState extends State<HomePage> {
     this.getTags();
   }
 
-  List<int> _selectedIndex = [];
-
-  void checkSelectedIndex(int index){
-    if (_selectedIndex.isNotEmpty){
-      setState(() => _selectedIndex.clear());
-      setState(() => _selectedIndex.add(index));
-    }
-    else{
-      setState(() => _selectedIndex.add(index));
-    }
-  }
-
-  void setInlcudedTags(){
-    if(includedTag.isNotEmpty){
-      includedTag.clear();
-      return includedTag.add(2);
-    }
-  }
-
   Widget buildPost(int index) {
-  return InkWell(
-    splashColor: Colors.blue.withAlpha(60),
-    child: ListTile(
-            title: Padding(
-              padding: EdgeInsets.symmetric(vertical: 10.0),
-              child: Text(posts[index].title.rendered,)
-            ),
-            subtitle: Column(
-              children: <Widget>[
-                buildImage(index),
-                Divider(thickness: 0, height: 5.0, color: Colors.transparent,),
-                Text(posts[index].date.substring(0,10)),
-                Divider(thickness: 0, height: 5.0, color: Colors.transparent,),
-                Text(filterHtml(posts[index].excerpt.rendered)),
+    return Column(
+      children: <Widget>[
+        Card(
+          child: Column(
+            children: <Widget>[
+              Text(posts[index].title.rendered,
+              style: TextStyle(fontWeight: FontWeight.bold,
+               fontSize: 20, 
+               fontFamily: 'Arial')),
+              buildImage(index),
+              Padding(
+                padding: EdgeInsets.all(10.0),
+                child: ListTile(
+                  title: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 10.0),
+                      child: Text(posts[index].date.substring(0, 10),
+                              style: TextStyle(fontSize: 12))),
+                  subtitle:  Text(filterHtml(posts[index].excerpt.rendered),
+                              style: TextStyle(fontSize: 16))
+                  )
+              )
             ],
           ),
-          onTap: (){
-            checkSelectedIndex(index);
-            passTitle = posts[_selectedIndex.first].title.rendered;
-            passDate = posts[_selectedIndex.first].date.substring(0,10);
-            passExcerpt = filterHtml(posts[_selectedIndex.first].excerpt.rendered);
-            passImage = buildImage(_selectedIndex.first);
-            Navigator.push(
-            context, 
-            MaterialPageRoute(builder: (context) => PostDetailPage()),
-          );
-        },
-      )
+        )
+      ],
     );
   }
 
+
   Widget buildImage(int index) {
     if (posts[index].featuredMedia == null) {
-      return Container(
-        //padding: EdgeInsets.symmetric(vertical: 5.0),
-        child: Text("Post has no Image"),
+      return Image.network(
+        "Post has no Image",
       );
     }
     return Image.network(
@@ -175,14 +138,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<String> getPosts() async {
-    setState((){
-      isLoading = true;
-    });
-
     var res = await fetchPosts();
     setState(() {
       posts = res;
-      isLoading = false;
     });
     return "Success!";
   }
@@ -195,6 +153,8 @@ class _HomePageState extends State<HomePage> {
         postStatus: wp.PostPageStatus.publish,
         orderBy: wp.PostOrderBy.date,
         order: wp.Order.desc,
+        includeCategories: includedTag,
+        excludeCategories: excludedTag
       ),
       fetchAuthor: true,
       fetchFeaturedMedia: true,
@@ -203,7 +163,7 @@ class _HomePageState extends State<HomePage> {
     return posts;
   }
 
-    List<wp.Category> postTags;
+  List<wp.Category> postTags;
   Future<List<wp.Category>> fetchCategories() async {
     var tags = wordPress.fetchCategories(
         params: wp.ParamsCategoryList(
@@ -223,6 +183,4 @@ class _HomePageState extends State<HomePage> {
     });
     return "Success!";
   }
-
-
 }
