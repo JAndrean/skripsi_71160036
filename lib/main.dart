@@ -8,8 +8,7 @@ import 'post_detail_page.dart';
 
 final _root = 'http://localhost/sinode';
 final wp.WordPress wordPress = wp.WordPress(baseUrl: _root);
-String passTitle, passDate, passExcerpt;
-Widget passImage;
+Widget passTitle, passDate, passExcerpt, passImage;
 bool isLoading = false;
 
 List<int> includedTag;
@@ -130,24 +129,32 @@ class _HomePageState extends State<HomePage> {
   return InkWell(
     splashColor: Colors.blue.withAlpha(60),
     child: ListTile(
-            title: Padding(
-              padding: EdgeInsets.symmetric(vertical: 10.0),
-              child: Text(posts[index].title.rendered,)
+            title: Center(
+              child: Container(
+                padding: EdgeInsets.symmetric(vertical: 5.0),
+                child: Text(posts[index].title.rendered, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              )
             ),
             subtitle: Column(
               children: <Widget>[
                 buildImage(index),
+                Divider(thickness: 0, height: 5.0, color: Colors.transparent),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(posts[index].date.substring(0,10)),
+                  ),
                 Divider(thickness: 0, height: 5.0, color: Colors.transparent,),
-                Text(posts[index].date.substring(0,10)),
-                Divider(thickness: 0, height: 5.0, color: Colors.transparent,),
-                Text(filterHtml(posts[index].excerpt.rendered)),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(filterHtml(posts[index].excerpt.rendered)),
+                )
             ],
           ),
           onTap: (){
             checkSelectedIndex(index);
-            passTitle = posts[_selectedIndex.first].title.rendered;
-            passDate = posts[_selectedIndex.first].date.substring(0,10);
-            passExcerpt = filterHtml(posts[_selectedIndex.first].excerpt.rendered);
+            passTitle = Text(posts[_selectedIndex.first].title.rendered, style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),);
+            passDate = Text(posts[_selectedIndex.first].date.substring(0,10));
+            passExcerpt = Text(filterHtml(posts[_selectedIndex.first].excerpt.rendered));
             passImage = buildImage(_selectedIndex.first);
             Navigator.push(
             context, 
@@ -171,7 +178,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   String filterHtml(String inputText) {
-    return inputText.substring(3, inputText.length-5);
+    RegExp exp = RegExp(
+      r"<[^>]*>",
+      multiLine: true,
+      caseSensitive: true
+    );
+
+    return inputText.replaceAll(exp, '');
   }
 
   Future<String> getPosts() async {

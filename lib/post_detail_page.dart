@@ -62,10 +62,6 @@ class _PostDetailPageState extends State<PostDetailPage> {
                   ListTile(
                     subtitle: Text('Tag 1'),
                      onTap: (){
-                      includedTag.clear();
-                      excludedTag.clear();
-                      includedTag.add(2);
-                      excludedTag.addAll([1,3]);
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => BeritaTagPage()),
@@ -88,18 +84,32 @@ class _PostDetailPageState extends State<PostDetailPage> {
         title: Text('Sinode GKJ'),
         backgroundColor: Colors.blueAccent,
       ),
-      body: ListTile(
-            title: Padding(
-              padding: EdgeInsets.symmetric(vertical: 10.0),
-              child: Text(passTitle)
+      body: ListView(
+        children: <Widget>[
+          ListTile(
+            title: Center(
+              child: Container(
+                padding: EdgeInsets.symmetric(vertical: 5.0),
+                child: passTitle,
+              )
             ),
             subtitle: Column(
               children: <Widget>[
                 passImage,
-                Text(passDate),
-                Text(passExcerpt),
-            ],
-          ),
+                Divider(thickness: 0, height: 5.0, color: Colors.transparent),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: passDate,
+                  ),
+                Divider(thickness: 0, height: 5.0, color: Colors.transparent),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: passExcerpt
+                )
+              ],
+            ),
+          )
+        ],
       )
     );
   }
