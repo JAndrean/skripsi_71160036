@@ -10,8 +10,7 @@ void main() {
     initialRoute: '/',
     routes: {
       '/': (context) => HomePage(),
-      //'berita0': (context) => Berita0Page(),
-      'berita1': (context) => BeritaTagPage(),
+      'beritaTagged': (context) => BeritaTagPage(),
       'postDetail': (context) => PostDetailPage(),
     },
     ));
@@ -55,13 +54,12 @@ class _PostDetailPageState extends State<PostDetailPage> {
                 children: <Widget>[
                   ListTile(
                     subtitle: Text('Uncategorized'),
-                    /*onTap: (){
-                      Navigator.pushNamed(context, 'berita0');
-                    }*/
-                  ),
-                  ListTile(
-                    subtitle: Text('Tag 1'),
-                     onTap: (){
+                    onTap: (){
+                      selectedCategory = 1;
+                      resetTags();
+                      includedTag.add(1);
+                      excludedTag.add(2);
+                      excludedTag.add(3);
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => BeritaTagPage()),
@@ -69,7 +67,32 @@ class _PostDetailPageState extends State<PostDetailPage> {
                     },
                   ),
                   ListTile(
-                    subtitle: Text('Tag 2')
+                    subtitle: Text('Category 1'),
+                     onTap: (){
+                      selectedCategory = 2;
+                       resetTags();
+                       includedTag.add(2);
+                       excludedTag.add(1);
+                       excludedTag.add(3);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => BeritaTagPage()),
+                      );
+                    },
+                  ),
+                  ListTile(
+                    subtitle: Text('Category 2'),
+                    onTap: (){
+                      selectedCategory = 3;
+                      resetTags();
+                       includedTag.add(3);
+                       excludedTag.add(1);
+                       excludedTag.add(2);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => BeritaTagPage()),
+                      );
+                    },
                     ),
                 ],
               ),
@@ -104,7 +127,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                 Divider(thickness: 0, height: 5.0, color: Colors.transparent),
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: passExcerpt
+                  child: passExcerpt,
                 )
               ],
             ),
@@ -118,31 +141,14 @@ class _PostDetailPageState extends State<PostDetailPage> {
   void initState() {
     super.initState();
     this.getPosts();
+    this.getTags();
   }
 
-  /*Widget buildPost(index) {
-    return Column(
-      children: <Widget>[
-        Card(
-          child: Column(
-            children: <Widget>[
-              Padding(
-                padding: EdgeInsets.all(10.0),
-                child: ListTile(
-                  title: Padding(
-                      padding: EdgeInsets.symmetric(vertical: 10.0),
-                      child: Text(posts[index].date.substring(0, 10),
-                              style: TextStyle(fontSize: 12))),
-                  subtitle:  Text(filterHtml(posts[index].excerpt.rendered),
-                              style: TextStyle(fontSize: 16)),
-                  )
-              )
-            ],
-          ),
-        )
-      ],
-    );
-  }*/
+  void resetTags(){
+    if(includedTag.isNotEmpty && excludedTag.isNotEmpty)
+    includedTag.clear();
+    excludedTag.clear();
+  }
 
   Widget buildImage(int index) {
     if (posts[index].featuredMedia == null) {
@@ -183,5 +189,26 @@ class _PostDetailPageState extends State<PostDetailPage> {
       fetchCategories: true,
     );
     return posts;
+  }
+
+   List<wp.Category> postTags;
+  Future<List<wp.Category>> fetchCategories() async {
+    var tags = wordPress.fetchCategories(
+        params: wp.ParamsCategoryList(
+      hideEmpty: true,
+    ));
+    return tags;
+  }
+
+    Future<String> getTags() async {
+    var res = await fetchCategories();
+    setState(() {
+      postTags = res;
+      // Just to confirm that we are getting the categories form the server
+      postTags.forEach((element) {
+        print(element.toJson());
+      });
+    });
+    return "Success!";
   }
 }

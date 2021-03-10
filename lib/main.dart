@@ -10,9 +10,8 @@ final _root = 'http://localhost/sinode';
 final wp.WordPress wordPress = wp.WordPress(baseUrl: _root);
 Widget passTitle, passDate, passExcerpt, passImage;
 bool isLoading = false;
+int selectedCategory;
 
-List<int> includedTag;
-List<int> excludedTag;
 void main() {
   runApp(MaterialApp(
     initialRoute: '/',
@@ -57,13 +56,26 @@ class _HomePageState extends State<HomePage> {
                 children: <Widget>[
                   ListTile(
                     subtitle: Text('Uncategorized'),
-                    /*onTap: (){
-                      Navigator.pushNamed(context, 'berita0');
-                    }*/
+                    onTap: (){
+                      selectedCategory = 1;
+                      resetTags();
+                      includedTag.add(1);
+                      excludedTag.add(2);
+                      excludedTag.add(3);
+                      Navigator.push(
+                        context, 
+                        MaterialPageRoute(builder: (context) => BeritaTagPage())
+                      );
+                    }
                   ),
                   ListTile(
-                    subtitle: Text('Tag 1'),
+                    subtitle: Text('Category 1'),
                     onTap: (){
+                      selectedCategory = 2;
+                      resetTags();
+                      includedTag.add(2);
+                      excludedTag.add(1);
+                      excludedTag.add(3);
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => BeritaTagPage()),
@@ -71,7 +83,18 @@ class _HomePageState extends State<HomePage> {
                     },
                   ),
                   ListTile(
-                    subtitle: Text('Tag 2')
+                    subtitle: Text('Category 2'),
+                    onTap: (){
+                      selectedCategory = 3;
+                      resetTags();
+                      includedTag.add(3);
+                      excludedTag.add(1);
+                      excludedTag.add(2);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => BeritaTagPage())
+                      );
+                    }
                     ),
                 ],
               ),
@@ -118,11 +141,10 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void setInlcudedTags(){
-    if(includedTag.isNotEmpty){
-      includedTag.clear();
-      return includedTag.add(2);
-    }
+  void resetTags(){
+    if(includedTag.isNotEmpty && excludedTag.isNotEmpty)
+    includedTag.clear();
+    excludedTag.clear();
   }
 
   Widget buildPost(int index) {
@@ -154,7 +176,7 @@ class _HomePageState extends State<HomePage> {
             checkSelectedIndex(index);
             passTitle = Text(posts[_selectedIndex.first].title.rendered, style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),);
             passDate = Text(posts[_selectedIndex.first].date.substring(0,10));
-            passExcerpt = Text(filterHtml(posts[_selectedIndex.first].excerpt.rendered));
+            passExcerpt = Text(filterHtml(posts[_selectedIndex.first].content.rendered));
             passImage = buildImage(_selectedIndex.first);
             Navigator.push(
             context, 
@@ -236,6 +258,4 @@ class _HomePageState extends State<HomePage> {
     });
     return "Success!";
   }
-
-
 }
