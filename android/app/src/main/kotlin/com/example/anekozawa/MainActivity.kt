@@ -1,4 +1,4 @@
-package com.example.anekozawa
+package com.example.sinode
 
 import io.flutter.embedding.android.FlutterActivity
 

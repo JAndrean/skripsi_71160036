@@ -20,13 +20,13 @@
   <!-- iOS meta tags & icons -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="anekozawa">
+  <meta name="apple-mobile-web-app-title" content="sinode gkj">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
+  <link rel="icon" type="image/png" href="favicon-32x32.png"/>
 
-  <title>anekozawa</title>
+  <title>Sinode GKJ</title>
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
@@ -36,10 +36,19 @@
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('flutter-first-frame', function () {
-        navigator.serviceWorker.register('flutter_service_worker.js');
+        scope: "/";
+        navigator.serviceWorker.register('sw.js')
+        .then(function(registration){
+          //sukses menginstall SW
+          console.log("Service Woker registered");
+          print("Service Woker registered with scope:", registration.scope);
+        }), function(err) {
+          console.log("Failed to register Service Worker", registration.err);
+          print("Failed to register Service Worker", registration.err);
+        }
       });
     }
   </script>
-  <script src="main.dart.js" type="application/javascript"></script>
+  <script src="main.dart.js" type="application/javascript"></script>"
 </body>
 </html>

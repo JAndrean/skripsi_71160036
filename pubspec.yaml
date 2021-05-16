@@ -1,5 +1,5 @@
-name: anekozawa
-description: A new Flutter project.
+name: sinode
+description: Aplikasi untuk Sinode GKJ.
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
@@ -31,6 +31,9 @@ dependencies:
   flutter_wordpress: ^0.2.1
   flutter_html: ^1.2.0
   url_launcher: ^5.7.10
+  dio: ^1.0.0
+  http: ^0.12.0+2
+  draggable_scrollbar: ^0.1.0
   
 dev_dependencies:
   flutter_test:
@@ -51,6 +54,12 @@ flutter:
   # assets:
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
+  assets:
+    - klasis.json
+    - gereja.json
+    - icons/gkj.png
+    - images/placeholder.png
+    - gkj.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

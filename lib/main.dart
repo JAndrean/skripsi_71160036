@@ -1,24 +1,34 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_wordpress/flutter_wordpress.dart' as wp;
-
-import 'berita_tag.dart';
+import 'berita.dart';
 import 'post_detail_page.dart';
+import 'daftarKlasis.dart';
+import 'daftarGereja.dart';
 
-final _root = 'http://localhost/sinode';
+final _root = 'https://sinodegkj.or.id';
 final wp.WordPress wordPress = wp.WordPress(baseUrl: _root);
+
 Widget passTitle, passDate, passExcerpt, passImage;
+
 bool isLoading = false;
+
 int selectedCategory;
+
+//id-tag-sinode
+//7, 
+
+List<int> includedTag = [0];
+List<int> excludedTag = [0];
 
 void main() {
   runApp(MaterialApp(
     initialRoute: '/',
-    routes: {
+      routes: {
         '/': (context) => HomePage(),
-        'beritaTagged': (context) => BeritaTagPage(),
-        'postDetail': (context) => PostDetailPage(),
+        '/berita': (context) => BeritaPage(),
+        '/postDetail': (context) => PostDetailPage(),
+        '/klasis' : (context) => KlasisPage(),
+        '/gereja' : (context) => GerejaPage(),
       },
     )
   );
@@ -31,7 +41,6 @@ class HomePage extends StatefulWidget {
 
 //Beranda
 class _HomePageState extends State<HomePage> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,52 +64,84 @@ class _HomePageState extends State<HomePage> {
                 title: Text('Berita'),
                 children: <Widget>[
                   ListTile(
-                    subtitle: Text('Uncategorized'),
+                    subtitle: Text('Sinode'),
                     onTap: (){
                       selectedCategory = 1;
-                      resetTags();
+                      /*resetTags();
                       includedTag.add(1);
                       excludedTag.add(2);
-                      excludedTag.add(3);
+                      excludedTag.add(3);*/
                       Navigator.push(
                         context, 
-                        MaterialPageRoute(builder: (context) => BeritaTagPage())
+                        MaterialPageRoute(builder: (context) => BeritaPage())
                       );
                     }
                   ),
                   ListTile(
-                    subtitle: Text('Category 1'),
+                    subtitle: Text('Klasis'),
                     onTap: (){
                       selectedCategory = 2;
-                      resetTags();
+                      /*resetTags();
                       includedTag.add(2);
                       excludedTag.add(1);
-                      excludedTag.add(3);
+                      excludedTag.add(3);*/
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => BeritaTagPage()),
+                        MaterialPageRoute(builder: (context) => BeritaPage()),
                       );
                     },
                   ),
                   ListTile(
-                    subtitle: Text('Category 2'),
+                    subtitle: Text('Gereja'),
                     onTap: (){
                       selectedCategory = 3;
-                      resetTags();
+                      /*resetTags();
                       includedTag.add(3);
                       excludedTag.add(1);
-                      excludedTag.add(2);
+                      excludedTag.add(2);*/
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => BeritaTagPage())
+                        MaterialPageRoute(builder: (context) => BeritaPage())
                       );
                     }
-                    ),
+                  ),
+                  ListTile(
+                    subtitle: Text('Lembaga'),
+                    onTap: (){
+                      selectedCategory = 3;
+                      /*resetTags();
+                      includedTag.add(3);
+                      excludedTag.add(1);
+                      excludedTag.add(2);*/
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => BeritaPage())
+                      );
+                    }
+                  ),
                 ],
               ),
               Divider(thickness: 2.0, indent: 5.0,),
-              ListTile(
-                title: Text('Profil Klasis dan Jemaat')
+              ExpansionTile(
+                title: Text('Daftar Klasis & Gereja'),
+                children: <Widget>[
+                  ListTile(
+                    onTap: (){
+                      Navigator.push(context, 
+                      MaterialPageRoute(builder: (context) => KlasisPage())
+                      );
+                    },
+                  subtitle: Text("Daftar Klasis"),
+                  ),
+                  ListTile(
+                    onTap: (){
+                      Navigator.push(context, 
+                      MaterialPageRoute(builder: (context) => GerejaPage())
+                      );
+                    },
+                    subtitle: Text("Daftar Gereja"),
+                  ),
+                ],
               ),
             ],
         )
@@ -109,36 +150,40 @@ class _HomePageState extends State<HomePage> {
         title: Text('Sinode GKJ'),
         backgroundColor: Colors.blueAccent,
       ),
-      body: isLoading
-          ? Center(
-            child: CircularProgressIndicator(),
-          ):
-          ListView.builder(
-            itemCount: posts == null ? 0 : posts.length,
-            itemBuilder: (BuildContext context, int index) {
-          return buildPost(index); //Building the posts list view
+      body: isLoading ? Center(
+        child: CircularProgressIndicator(),
+      ) :
+      ListView.builder(
+        itemCount: posts == null ? 0 : posts.length,
+        itemBuilder: (context, int index){
+          return buildPost(index);
         },
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: (){
+          setState(() {
+            getPosts();
+            getTags();
+          });
+        },
+        label: Text('Muat Ulang', style: TextStyle(fontSize: 10)),
+        icon: const Icon(Icons.refresh),
+        backgroundColor: Colors.blueAccent,
       ),
     );
   }
 
   @override
-  void initState() {
+  void initState(){
     super.initState();
-    this.getPosts();
     this.getTags();
+    this.getPosts();
   }
 
-  List<int> _selectedIndex = [];
+  int passingIndex;
 
-  void checkSelectedIndex(int index){
-    if (_selectedIndex.isNotEmpty){
-      setState(() => _selectedIndex.clear());
-      setState(() => _selectedIndex.add(index));
-    }
-    else{
-      setState(() => _selectedIndex.add(index));
-    }
+  void checkChosenIndex(int index){
+    passingIndex = index;
   }
 
   void resetTags(){
@@ -147,14 +192,13 @@ class _HomePageState extends State<HomePage> {
     excludedTag.clear();
   }
 
-  Widget buildPost(int index) {
-  return InkWell(
-    splashColor: Colors.blue.withAlpha(60),
+  Widget buildPost(index) {
+  return Container(
     child: ListTile(
             title: Center(
               child: Container(
                 padding: EdgeInsets.symmetric(vertical: 5.0),
-                child: Text(posts[index].title.rendered, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                child: Text(filterHtml(posts[index].title.rendered), style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold)),
               )
             ),
             subtitle: Column(
@@ -168,16 +212,16 @@ class _HomePageState extends State<HomePage> {
                 Divider(thickness: 0, height: 5.0, color: Colors.transparent,),
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: Text(filterHtml(posts[index].excerpt.rendered)),
+                  child: Text(filterHtml(posts[index].excerpt.rendered))
                 )
             ],
           ),
           onTap: (){
-            checkSelectedIndex(index);
-            passTitle = Text(posts[_selectedIndex.first].title.rendered, style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),);
-            passDate = Text(posts[_selectedIndex.first].date.substring(0,10));
-            passExcerpt = Text(filterHtml(posts[_selectedIndex.first].content.rendered));
-            passImage = buildImage(_selectedIndex.first);
+            checkChosenIndex(index);
+            passTitle = Text(posts[index].title.rendered, style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),);
+            passDate = Text(posts[index].date.substring(0,10));
+            passExcerpt = Text(filterHtml(posts[index].content.rendered.toString()));
+            passImage = buildImage(index);
             Navigator.push(
             context, 
             MaterialPageRoute(builder: (context) => PostDetailPage()),
@@ -189,23 +233,20 @@ class _HomePageState extends State<HomePage> {
 
   Widget buildImage(int index) {
     if (posts[index].featuredMedia == null) {
-      return Container(
-        //padding: EdgeInsets.symmetric(vertical: 5.0),
-        child: Text("Post has no Image"),
-      );
+      return Image.asset("images/placeholder.png");
     }
     return Image.network(
-      posts[index].featuredMedia.mediaDetails.sizes.thumbnail.sourceUrl, 
-    );
+      posts[index].featuredMedia.mediaDetails.sizes.thumbnail.sourceUrl
+      );
   }
 
   String filterHtml(String inputText) {
+
     RegExp exp = RegExp(
       r"<[^>]*>",
       multiLine: true,
       caseSensitive: true
     );
-
     return inputText.replaceAll(exp, '');
   }
 
@@ -215,10 +256,18 @@ class _HomePageState extends State<HomePage> {
     });
 
     var res = await fetchPosts();
+
+    if(res.isNotEmpty){
+    isLoading = false;
     setState(() {
       posts = res;
-      isLoading = false;
     });
+    }else if (res.isEmpty){
+      isLoading = false;
+      Center(
+        child: Text("Gagal mendapatkan Posts"),
+      );
+    }
     return "Success!";
   }
 
@@ -234,27 +283,24 @@ class _HomePageState extends State<HomePage> {
       fetchAuthor: true,
       fetchFeaturedMedia: true,
       fetchCategories: true,
+      fetchAttachments: true,
     );
     return posts;
   }
 
-    List<wp.Category> postTags;
+  List<wp.Category> postTags;
   Future<List<wp.Category>> fetchCategories() async {
-    var tags = wordPress.fetchCategories(
+    var postTags = wordPress.fetchCategories(
         params: wp.ParamsCategoryList(
       hideEmpty: true,
     ));
-    return tags;
+    return postTags;
   }
 
-    Future<String> getTags() async {
+  Future<String> getTags() async {
     var res = await fetchCategories();
     setState(() {
       postTags = res;
-      // Just to confirm that we are getting the categories form the server
-      postTags.forEach((element) {
-        print(element.toJson());
-      });
     });
     return "Success!";
   }

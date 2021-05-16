@@ -1,7 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.anekozawa">
+    package="com.example.sinode">
+   <uses-permission android:name="android.permission.INTERNET"/>
    <application
-        android:label="anekozawa"
+        android:label="Sinode"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
