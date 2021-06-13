@@ -77,11 +77,10 @@ class _KlasisPageState extends State<KlasisPage> {
                   ListTile(
                     subtitle: Text('Sinode'),
                     onTap: (){
-                      selectedCategory = 1;
-                      /*resetTags();
+                      resetTags();
                       includedTag.add(1);
                       excludedTag.add(2);
-                      excludedTag.add(3);*/
+                      excludedTag.add(3);
                       Navigator.push(
                         context, 
                         MaterialPageRoute(builder: (context) => BeritaPage())
@@ -91,11 +90,10 @@ class _KlasisPageState extends State<KlasisPage> {
                   ListTile(
                     subtitle: Text('Klasis'),
                     onTap: (){
-                      selectedCategory = 2;
-                      /*resetTags();
+                      resetTags();
                       includedTag.add(2);
                       excludedTag.add(1);
-                      excludedTag.add(3);*/
+                      excludedTag.add(3);
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => BeritaPage()),
@@ -105,11 +103,10 @@ class _KlasisPageState extends State<KlasisPage> {
                   ListTile(
                     subtitle: Text('Gereja'),
                     onTap: (){
-                      selectedCategory = 3;
-                      /*resetTags();
+                      resetTags();
                       includedTag.add(3);
                       excludedTag.add(1);
-                      excludedTag.add(2);*/
+                      excludedTag.add(2);
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => BeritaPage())
@@ -119,11 +116,10 @@ class _KlasisPageState extends State<KlasisPage> {
                   ListTile(
                     subtitle: Text('Lembaga'),
                     onTap: (){
-                      selectedCategory = 3;
-                      /*resetTags();
+                      resetTags();
                       includedTag.add(3);
                       excludedTag.add(1);
-                      excludedTag.add(2);*/
+                      excludedTag.add(2);
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => BeritaPage())
@@ -225,7 +221,6 @@ class _KlasisPageState extends State<KlasisPage> {
     var res = await fetchKlasis();
     setState(() {
       listKlasis = res;
-      //gerejaList = res;
     });
     isLoading = false;
     return "Success!";

@@ -73,11 +73,10 @@ class _GerejaPageState extends State<GerejaPage> {
                   ListTile(
                     subtitle: Text('Sinode'),
                     onTap: (){
-                      selectedCategory = 1;
-                      /*resetTags();
+                      resetTags();
                       includedTag.add(1);
                       excludedTag.add(2);
-                      excludedTag.add(3);*/
+                      excludedTag.add(3);
                       Navigator.push(
                         context, 
                         MaterialPageRoute(builder: (context) => BeritaPage())
@@ -87,11 +86,10 @@ class _GerejaPageState extends State<GerejaPage> {
                   ListTile(
                     subtitle: Text('Klasis'),
                     onTap: (){
-                      selectedCategory = 2;
-                      /*resetTags();
+                      resetTags();
                       includedTag.add(2);
                       excludedTag.add(1);
-                      excludedTag.add(3);*/
+                      excludedTag.add(3);
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => BeritaPage()),
@@ -101,11 +99,10 @@ class _GerejaPageState extends State<GerejaPage> {
                   ListTile(
                     subtitle: Text('Gereja'),
                     onTap: (){
-                      selectedCategory = 3;
-                      /*resetTags();
+                      resetTags();
                       includedTag.add(3);
                       excludedTag.add(1);
-                      excludedTag.add(2);*/
+                      excludedTag.add(2);
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => BeritaPage())
@@ -115,11 +112,10 @@ class _GerejaPageState extends State<GerejaPage> {
                   ListTile(
                     subtitle: Text('Lembaga'),
                     onTap: (){
-                      selectedCategory = 3;
-                      /*resetTags();
+                      resetTags();
                       includedTag.add(3);
                       excludedTag.add(1);
-                      excludedTag.add(2);*/
+                      excludedTag.add(2);
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => BeritaPage())
@@ -158,7 +154,6 @@ class _GerejaPageState extends State<GerejaPage> {
             child: CircularProgressIndicator(),
           ):
         Container(
-        //constraints: BoxConstraints(maxWidth: 200),
         child: Column(
           children: <Widget>[
             Padding(
@@ -255,7 +250,6 @@ Widget buildList(index){
     var res = await fetchGereja();
     setState(() {
       items = res;
-      //gerejaList = res;
     });
     isLoading = false;
     return "Success!";
@@ -297,17 +291,4 @@ Widget buildList(index){
       });
     }
   }
-
- List<wp.Page> gerejaList;
- Future<List<wp.Page>> fetchGerejaWp () async {
-   var gerejaWp = wordPress.fetchPages(
-     params: wp.ParamsPageList(
-       context: wp.WordPressContext.view,
-       pageStatus: wp.PostPageStatus.publish,
-       orderBy: wp.PageOrderBy.title,
-       order: wp.Order.desc,
-      ),
-   );
-   return gerejaWp;
- }
 }    

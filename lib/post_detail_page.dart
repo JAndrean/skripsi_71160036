@@ -40,13 +40,13 @@ class _PostDetailPageState extends State<PostDetailPage> {
                 Divider(thickness: 0, height: 5.0, color: Colors.transparent),
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: passExcerpt,
+                  child: postContent,
                 )
               ],
             ),
           )
         ],
-      )
+      ),
     );
   }
 

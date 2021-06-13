@@ -1,7 +1,7 @@
 {
     "name": "Sinode GKJ",
-    "short_name": "GKJ",
-    "start_url": "/",
+    "short_name": "SinodePWA",
+    "start_url": "/index.html",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",

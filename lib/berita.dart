@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_wordpress/flutter_wordpress.dart' as wp;
 import 'main.dart';
 import 'post_detail_page.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 final _root = 'https://sinodegkj.or.id';
 final wp.WordPress wordPress = wp.WordPress(baseUrl: _root);
@@ -17,6 +18,7 @@ class BeritaPage extends StatefulWidget {
 class _BeritaPageState extends State<BeritaPage> {
   @override
   Widget build(BuildContext context) {
+    if(isConnected == true)
       return Scaffold(
       appBar: AppBar(
         title: Text('Sinode GKJ'),
@@ -36,6 +38,29 @@ class _BeritaPageState extends State<BeritaPage> {
           setState(() {
             getPosts();
             getTags();
+            checkConnection();
+          });
+        },
+        label: Text('Muat Ulang', style: TextStyle(fontSize: 10)),
+        icon: const Icon(Icons.refresh),
+        backgroundColor: Colors.blueAccent,
+      ),
+    );
+    else
+      return Scaffold(
+      appBar: AppBar(
+        title: Text('Sinode GKJ'),
+        backgroundColor: Colors.blueAccent,
+      ),
+      body: Center(
+        child: Text("Perangkat Tidak Terhubung ke Internet")
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: (){
+          setState(() {
+            getPosts();
+            getTags();
+            checkConnection();
           });
         },
         label: Text('Muat Ulang', style: TextStyle(fontSize: 10)),
@@ -51,6 +76,16 @@ class _BeritaPageState extends State<BeritaPage> {
     this.getPosts();
     this.getTags();
   }
+
+  
+  void checkConnection() async {
+    var connection = await (Connectivity().checkConnectivity());
+    if(connection == ConnectivityResult.mobile || connection == ConnectivityResult.wifi)
+      isConnected = true;
+    else
+      isConnected = false;
+  }
+
 
   Widget buildPost(int index) {
     return Container(
@@ -80,7 +115,7 @@ class _BeritaPageState extends State<BeritaPage> {
             checkSelectedIndex(index);
             passTitle = Text(posts[_selectedIndex.first].title.rendered, style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),);
             passDate = Text(posts[_selectedIndex.first].date.substring(0,10));
-            passExcerpt = Text(filterHtml(posts[_selectedIndex.first].content.rendered));
+            postContent = Text(filterHtml(posts[_selectedIndex.first].content.rendered));
             passImage = buildImage(_selectedIndex.first);
             Navigator.push(
             context, 
