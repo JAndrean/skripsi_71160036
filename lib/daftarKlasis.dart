@@ -153,8 +153,34 @@ class _KlasisPageState extends State<KlasisPage> {
         title: Text('Sinode GKJ'),
         backgroundColor: Colors.blueAccent,
       ),
-      body: Container(
-      child: new ListView.builder(
+      body: LayoutBuilder (builder: (context, constraints){
+        if(constraints.maxWidth > 600){
+          return buildWideKlasisList();
+        }else{
+          return buildKlasisList();
+        }
+      })
+    );
+  }
+
+  Widget buildWideKlasisList() {
+    return Center(
+      child: Container(
+        width: 480,
+        child: new ListView.builder(
+                itemCount: listKlasis.length,
+                itemBuilder: (BuildContext context, int index){
+                  return buildList(index);
+                },
+              ),
+      ),
+    );
+  }
+
+  Widget buildKlasisList() {
+     return Center(
+      child: Container(
+        child: new ListView.builder(
                 itemCount: listKlasis.length,
                 itemBuilder: (BuildContext context, int index){
                   return buildList(index);

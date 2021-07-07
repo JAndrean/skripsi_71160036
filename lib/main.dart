@@ -8,9 +8,12 @@ import 'daftarKlasis.dart';
 import 'post_detail_page.dart';
 
 final _root = 'https://sinodegkj.or.id';
+//final _root = 'http://localhost/sinode';
 final wp.WordPress wordPress = wp.WordPress(baseUrl: _root);
 
 Widget passTitle, passDate, postContent, passImage;
+
+Widget postImage;
 
 bool isLoading = false;
 bool isConnected = false;
@@ -147,12 +150,13 @@ class _HomePageState extends State<HomePage> {
       body: isLoading ? Center(
         child: CircularProgressIndicator(),
       ) :
-      ListView.builder(
-        itemCount: posts == null ? 0 : posts.length,
-        itemBuilder: (context, int index){
-          return buildPost(index);
-        },
-      ),
+      LayoutBuilder(builder: (context, constraints){
+        if(constraints.maxWidth > 600){
+          return buildListViewWide();
+        }else{
+          return buildListView();
+        }
+      }),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: (){
           setState(() {
@@ -311,9 +315,59 @@ class _HomePageState extends State<HomePage> {
     excludedTag.clear();
   }
 
-  Widget buildPost(index) {
-  return Container(
-    child: ListTile(
+  Widget buildListViewWide() {
+    return ListView.builder(
+      itemCount: posts == null ? 0 : posts.length,
+      itemBuilder: (context,index){
+        postImage = buildImage(index);
+        return Center(
+          child: Container(
+            width: 480,
+            child: ListTile(
+            title: Center(
+              child: Container(
+                padding: EdgeInsets.symmetric(vertical: 5.0),
+                child: Text(filterHtml(posts[index].title.rendered), style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold)),
+              )
+            ),
+            subtitle: Column(
+              children: <Widget>[
+                postImage,
+                Divider(thickness: 0, height: 5.0, color: Colors.transparent),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(posts[index].date.substring(0,10)),
+                  ),
+                Divider(thickness: 0, height: 5.0, color: Colors.transparent,),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(filterHtml(posts[index].excerpt.rendered), style: TextStyle(color: Colors.black))
+                ),
+                Divider(thickness: 1.5, height: 1.0, color: Colors.black,),
+            ],
+          ),
+          onTap: (){                         
+            passTitle = Text(posts[index].title.rendered, style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),);
+            passDate = Text(posts[index].date.substring(0,10));
+            postContent = Text(filterHtml(posts[index].content.rendered), style: TextStyle(color: Colors.black));
+            passImage = buildImage(index);
+            Navigator.push(
+            context, 
+            MaterialPageRoute(builder: (context) => PostDetailPage()),
+          );
+        },
+        )
+          )
+        );
+      });
+  }
+
+  Widget buildListView() {
+    return ListView.builder(
+      itemCount: posts == null ? 0 : posts.length,
+      itemBuilder: (context,index){
+        return Container(
+          child: ListTile(
             title: Center(
               child: Container(
                 padding: EdgeInsets.symmetric(vertical: 5.0),
@@ -331,30 +385,31 @@ class _HomePageState extends State<HomePage> {
                 Divider(thickness: 0, height: 5.0, color: Colors.transparent,),
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: Text(filterHtml(posts[index].excerpt.rendered))
-                )
+                  child: Text(filterHtml(posts[index].excerpt.rendered), style: TextStyle(color: Colors.black))
+                ),
+                Divider(thickness: 1.5, height: 1.0, color: Colors.black,),
             ],
           ),
-          onTap: (){
+          onTap: (){                         
             passTitle = Text(posts[index].title.rendered, style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),);
             passDate = Text(posts[index].date.substring(0,10));
-            postContent = Text(filterHtml(posts[index].content.rendered.toString()));
+            postContent = Text(filterHtml(posts[index].content.rendered), style: TextStyle(color: Colors.black));
             passImage = buildImage(index);
             Navigator.push(
             context, 
             MaterialPageRoute(builder: (context) => PostDetailPage()),
           );
         },
-      )
-    );
+        )
+        );
+      });
   }
 
-  Widget buildImage(int index) {
-    if (posts[index].featuredMedia == null) {
+  Widget buildImage(index) {
+    if(posts[index].featuredMediaID == 0){
       return Image.asset("images/placeholder.png");
     }else{
-    return Image.network(
-      posts[index].featuredMedia.mediaDetails.sizes.thumbnail.sourceUrl);
+      return Image.network(posts[index].featuredMedia.mediaDetails.sizes.thumbnail.sourceUrl);
     }
   }
 
@@ -398,12 +453,11 @@ class _HomePageState extends State<HomePage> {
         postStatus: wp.PostPageStatus.publish,
         orderBy: wp.PostOrderBy.date,
         order: wp.Order.desc,
-        includeCategories: includedTag,
+        //perPage: 20,
+        //includeCategories: includedTag,
       ),
-      fetchAuthor: true,
       fetchFeaturedMedia: true,
       fetchCategories: true,
-      fetchAttachments: true,
     );
     return posts;
   }

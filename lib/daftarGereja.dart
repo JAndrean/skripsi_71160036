@@ -153,6 +153,11 @@ class _GerejaPageState extends State<GerejaPage> {
           ? Center(
             child: CircularProgressIndicator(),
           ):
+        buildGerejaList(),
+    );
+  }
+
+/*
         Container(
         child: Column(
           children: <Widget>[
@@ -186,8 +191,47 @@ class _GerejaPageState extends State<GerejaPage> {
           ],
         ),
       ),
-    );
-  }
+*/
+
+Widget buildGerejaList(){
+  return Center(
+    child: 
+        Container(
+        constraints: BoxConstraints(minWidth: 360, maxWidth: 480),
+        child: Column(
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.all(5.0),
+              child: TextField(
+                onChanged: (value){
+                  searchGereja(value);
+                },
+                  decoration: InputDecoration(
+                  labelText: "Cari Gereja",
+                  hintText: "Nama Gereja",
+                  prefixIcon: Icon(Icons.search),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(15.0))),
+                ),
+              ),
+            ),
+            Expanded(
+              child: DraggableScrollbar.rrect(
+                      controller: _scrollController,
+                      backgroundColor: Colors.blueAccent,
+                      child: ListView.builder(
+                            controller: _scrollController,
+                            itemCount: items.length,
+                            itemBuilder: (context, int index){
+                              return buildList(index);
+                            }
+                          )
+                        )
+                      ),
+          ],
+        ),
+      ),
+  );
+}
 
 Widget buildList(index){
   return Container(
@@ -215,8 +259,7 @@ Widget buildList(index){
                     subtitle: Divider(thickness: 1.2, height: 5.0, color: Colors.black),
                 )
               );
-}
-
+  }
 
   @override
   void initState(){
@@ -276,7 +319,7 @@ Widget buildList(index){
       List<Gereja> resultList = [];
       dummyList.forEach((item) {
         //pencarian tidak case sensitive
-        if(item.nama.toLowerCase().contains(query.toLowerCase())) {
+        if(item.nama.toLowerCase().contains(query.toLowerCase()) || item.klasis.toLowerCase().contains(query.toLowerCase())) {
           resultList.add(item);
         }
       });

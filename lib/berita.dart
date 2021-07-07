@@ -21,19 +21,20 @@ class _BeritaPageState extends State<BeritaPage> {
     if(isConnected == true)
       return Scaffold(
       appBar: AppBar(
-        title: Text('Sinode GKJ'),
+        title: Text('Sinode GKJ/Berita'),
         backgroundColor: Colors.blueAccent,
       ),
-      body: isLoading ? 
-      Center(
-        child: CircularProgressIndicator()
-      ):
-      ListView.builder(
-        itemCount: posts == null ? 0 : posts.length,
-        itemBuilder: (BuildContext context, int index) {
-          return buildPost(index); //Building the posts list view
-        },
-      ),floatingActionButton: FloatingActionButton.extended(
+      body: isLoading ? Center(
+        child: CircularProgressIndicator(),
+      ) :
+      LayoutBuilder(builder: (context, constraints){
+        if(constraints.maxWidth > 600){
+          return buildListViewWide();
+        }else{
+          return buildListView();
+        }
+      }),
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: (){
           setState(() {
             getPosts();
@@ -49,7 +50,7 @@ class _BeritaPageState extends State<BeritaPage> {
     else
       return Scaffold(
       appBar: AppBar(
-        title: Text('Sinode GKJ'),
+        title: Text('Sinode GKJ/Berita'),
         backgroundColor: Colors.blueAccent,
       ),
       body: Center(
@@ -86,46 +87,6 @@ class _BeritaPageState extends State<BeritaPage> {
       isConnected = false;
   }
 
-
-  Widget buildPost(int index) {
-    return Container(
-    child: ListTile(
-            title: Center(
-              child: Container(
-                padding: EdgeInsets.symmetric(vertical: 5.0),
-                child: Text(posts[index].title.rendered, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              )
-            ),
-            subtitle: Column(
-              children: <Widget>[
-                buildImage(index),
-                Divider(thickness: 0, height: 5.0, color: Colors.transparent),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(posts[index].date.substring(0,10)),
-                  ),
-                Divider(thickness: 0, height: 5.0, color: Colors.transparent,),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(filterHtml(posts[index].excerpt.rendered)),
-                )
-            ],
-          ),
-          onTap: (){
-            checkSelectedIndex(index);
-            passTitle = Text(posts[_selectedIndex.first].title.rendered, style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),);
-            passDate = Text(posts[_selectedIndex.first].date.substring(0,10));
-            postContent = Text(filterHtml(posts[_selectedIndex.first].content.rendered));
-            passImage = buildImage(_selectedIndex.first);
-            Navigator.push(
-            context, 
-            MaterialPageRoute(builder: (context) => PostDetailPage()),
-          );
-        },
-      )
-    );
-  }
-
   void resetTags(){
     if(includedTag.isNotEmpty && excludedTag.isNotEmpty)
     includedTag.clear();
@@ -153,16 +114,93 @@ class _BeritaPageState extends State<BeritaPage> {
     return inputText.replaceAll(exp, '');
   }
 
-  List<int> _selectedIndex = [];
+Widget buildListViewWide() {
+    return ListView.builder(
+      itemCount: posts == null ? 0 : posts.length,
+      itemBuilder: (context,index){
+        return Center(
+          child: Container(
+            width: 480,
+            child: ListTile(
+            title: Center(
+              child: Container(
+                padding: EdgeInsets.symmetric(vertical: 5.0),
+                child: Text(filterHtml(posts[index].title.rendered), style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold)),
+              )
+            ),
+            subtitle: Column(
+              children: <Widget>[
+                buildImage(index),
+                Divider(thickness: 0, height: 5.0, color: Colors.transparent),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(posts[index].date.substring(0,10)),
+                  ),
+                Divider(thickness: 0, height: 5.0, color: Colors.transparent,),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(filterHtml(posts[index].excerpt.rendered), style: TextStyle(color: Colors.black))
+                ),
+                Divider(thickness: 1.5, height: 1.0, color: Colors.black,),
+            ],
+          ),
+          onTap: (){                         
+            passTitle = Text(posts[index].title.rendered, style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),);
+            passDate = Text(posts[index].date.substring(0,10));
+            postContent = Text(filterHtml(posts[index].content.rendered), style: TextStyle(color: Colors.black));
+            passImage = buildImage(index);
+            Navigator.push(
+            context, 
+            MaterialPageRoute(builder: (context) => PostDetailPage()),
+          );
+        },
+        )
+          )
+        );
+      });
+  }
 
-  void checkSelectedIndex(int index){
-    if (_selectedIndex.isNotEmpty){
-      setState(() => _selectedIndex.clear());
-      setState(() => _selectedIndex.add(index));
-    }
-    else{
-      setState(() => _selectedIndex.add(index));
-    }
+  Widget buildListView() {
+    return ListView.builder(
+      itemCount: posts == null ? 0 : posts.length,
+      itemBuilder: (context,index){
+        return Container(
+          child: ListTile(
+            title: Center(
+              child: Container(
+                padding: EdgeInsets.symmetric(vertical: 5.0),
+                child: Text(filterHtml(posts[index].title.rendered), style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold)),
+              )
+            ),
+            subtitle: Column(
+              children: <Widget>[
+                buildImage(index),
+                Divider(thickness: 0, height: 5.0, color: Colors.transparent),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(posts[index].date.substring(0,10)),
+                  ),
+                Divider(thickness: 0, height: 5.0, color: Colors.transparent,),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(filterHtml(posts[index].excerpt.rendered), style: TextStyle(color: Colors.black))
+                ),
+                Divider(thickness: 1.5, height: 1.0, color: Colors.black,),
+            ],
+          ),
+          onTap: (){                         
+            passTitle = Text(posts[index].title.rendered, style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),);
+            passDate = Text(posts[index].date.substring(0,10));
+            postContent = Text(filterHtml(posts[index].content.rendered), style: TextStyle(color: Colors.black));
+            passImage = buildImage(index);
+            Navigator.push(
+            context, 
+            MaterialPageRoute(builder: (context) => PostDetailPage()),
+          );
+        },
+        )
+        );
+      });
   }
 
   Future<String> getPosts() async {
